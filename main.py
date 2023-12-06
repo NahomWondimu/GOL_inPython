@@ -9,10 +9,10 @@ COLOR_ALIVE_NEXT = (255, 255, 255)
 
 
 def update(screen, cells, size, with_progress=False):
-    updated_cells = np.empty((cells.shape[0], cells.shape[1]))
+    updated_cells = np.zeros_like(cells)
 
     for row, col in np.ndindex(cells.shape):
-        alive = np.sum(cells[row-1:row+2, col-1:col+2]) - np.sum(cells[row, col])
+        alive = np.sum(cells[(row-1) % cells.shape[0]:(row+2) % cells.shape[0], (col-1) % cells.shape[1]:(col+2) % cells.shape[1]]) - cells[row, col]
         color = COLOR_BG if cells[row, col] == 0 else COLOR_ALIVE_NEXT
 
         if cells[row, col] == 1:
@@ -22,7 +22,7 @@ def update(screen, cells, size, with_progress=False):
                 elif 2 <= alive <= 3:
                     updated_cells[row, col] = 1
                 if with_progress:
-                color = COLOR_ALIVE_NEXT
+                    color = COLOR_ALIVE_NEXT
         else:
             if alive == 3:
                 updated_cells[row, col] = 1
@@ -31,11 +31,13 @@ def update(screen, cells, size, with_progress=False):
             
         pygame.draw.rect(screen, color, (col * size, row * size, size - 1, size - 1))
 
+    
+    cells[:] = updated_cells
     return updated_cells
 
 def main():
     pygame.init()
-    screen = pygame.display.setmode((800, 600))
+    screen = pygame.display.set_mode((800, 600))
 
     cells = np.zeros((60, 80))
     screen.fill(COLOR_GRID)
@@ -45,6 +47,29 @@ def main():
     pygame.display.update()
 
     running = False
-
     while True :
-        #run game and use updates here.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    running = not running
+                    update(screen, cells, 10)
+                    pygame.display.update()
+            elif pygame.mouse.get_pressed()[0]:
+                    pos = pygame.mouse.get_pos()
+                    cells[pos[1] // 10, pos[0] // 10] = 1
+                    update(screen, cells, 10)
+                    pygame.display.update()
+
+            screen.fill(COLOR_GRID)
+
+            if running:
+                cells = update(screen, cells, 10, with_progress=True)
+                pygame.display.update()
+        
+            time.sleep(0.001)
+
+if __name__ == '__main__':
+    main()
