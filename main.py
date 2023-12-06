@@ -19,8 +19,8 @@ def update(screen, cells, size, with_progress=False):
             if alive < 2 or alive > 3:
                 if with_progress:
                     color = COLOR_DIE_NEXT
-                elif 2 <= alive <= 3:
-                    updated_cells[row, col] = 1
+            elif 2 <= alive <= 3:
+                updated_cells[row, col] = 1
                 if with_progress:
                     color = COLOR_ALIVE_NEXT
         else:
@@ -31,8 +31,6 @@ def update(screen, cells, size, with_progress=False):
             
         pygame.draw.rect(screen, color, (col * size, row * size, size - 1, size - 1))
 
-    
-    cells[:] = updated_cells
     return updated_cells
 
 def main():
@@ -57,19 +55,19 @@ def main():
                     running = not running
                     update(screen, cells, 10)
                     pygame.display.update()
-            elif pygame.mouse.get_pressed()[0]:
-                    pos = pygame.mouse.get_pos()
-                    cells[pos[1] // 10, pos[0] // 10] = 1
-                    update(screen, cells, 10)
-                    pygame.display.update()
-
-            screen.fill(COLOR_GRID)
-
-            if running:
-                cells = update(screen, cells, 10, with_progress=True)
+            if pygame.mouse.get_pressed()[0]:
+                pos = pygame.mouse.get_pos()
+                cells[pos[1] // 10, pos[0] // 10] = 1
+                update(screen, cells, 10)
                 pygame.display.update()
-        
-            time.sleep(0.001)
+
+        screen.fill(COLOR_GRID)
+
+        if running:
+            cells = update(screen, cells, 10, with_progress=True)
+            pygame.display.update()
+    
+        time.sleep(0.01)
 
 if __name__ == '__main__':
     main()
